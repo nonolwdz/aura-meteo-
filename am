@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aura | La Météo Redéfinie</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            min-height: 100vh;
+            transition: background 1s ease;
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 2rem;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center p-6 text-white">
+
+    <div class="max-w-md w-full">
+        <div class="relative mb-8">
+            <input type="text" id="cityInput" placeholder="Chercher une ville..." 
+                   class="w-full bg-white/10 border border-white/20 rounded-2xl py-4 px-6 outline-none focus:ring-2 ring-white/30 transition-all placeholder:text-white/50">
+            <button onclick="getWeather()" class="absolute right-4 top-4 hover:scale-110 transition-transform">
+                🔍
+            </button>
+        </div>
+
+        <div id="weatherCard" class="glass p-8 text-center shadow-2xl opacity-0 translate-y-4 transition-all duration-700">
+            <h2 id="cityName" class="text-3xl font-light tracking-wide">Paris</h2>
+            <p id="date" class="text-white/60 text-sm mt-1">Aujourd'hui, 12 Mars</p>
+            
+            <div class="my-10">
+                <span id="temp" class="text-8xl font-semibold tracking-tighter">18°</span>
+            </div>
+
+            <p id="desc" class="text-xl capitalize font-medium mb-8">Ciel Dégagé</p>
+
+            <div class="grid grid-cols-2 gap-4 border-t border-white/10 pt-8">
+                <div>
+                    <p class="text-white/50 text-xs uppercase tracking-widest">Humidité</p>
+                    <p id="humidity" class="text-lg">45%</p>
+                </div>
+                <div>
+                    <p class="text-white/50 text-xs uppercase tracking-widest">Vent</p>
+                    <p id="wind" class="text-lg">12 km/h</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_KEY = 'VOTRE_CLE_API_ICI'; // Obtenez-en une sur openweathermap.org
+
+        async function getWeather() {
+            const city = document.getElementById('cityInput').value || 'Paris';
+            const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric&lang=fr`;
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (data.cod === 200) {
+                    displayWeather(data);
+                } else {
+                    alert("Ville non trouvée !");
+                }
+            } catch (error) {
+                console.error("Erreur:", error);
+            }
+        }
+
+        function displayWeather(data) {
+            const card = document.getElementById('weatherCard');
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+
+            document.getElementById('cityName').innerText = data.name;
+            document.getElementById('temp').innerText = Math.round(data.main.temp) + '°';
+            document.getElementById('desc').innerText = data.weather[0].description;
+            document.getElementById('humidity').innerText = data.main.humidity + '%';
+            document.getElementById('wind').innerText = Math.round(data.wind.speed * 3.6) + ' km/h';
+
+            // Changer le fond selon la température
+            if(data.main.temp > 20) {
+                document.body.style.background = "linear-gradient(135deg, #f59e0b 0%, #ef4444 100%)";
+            } else {
+                document.body.style.background = "linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)";
+            }
+        }
+
+        // Animation d'entrée
+        window.onload = () => {
+            getWeather();
+        };
+    </script>
+</body>
+</html>
